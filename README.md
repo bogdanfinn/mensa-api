@@ -9,6 +9,7 @@ Call:
 
 `universityTag` = The Tag to specify which crawler you want to use.
 
+
 ###Implemented Universities:
 * `NAK` (https://www.nordakademie.de)
 
@@ -20,6 +21,7 @@ Feel free to contribute a crawler implementation for your own university:
 * Implement a crawler which extends the AbstractMensaCrawler.php` class
 * Àdd your crawler in the `services.yaml` file with the correct tag
 * Submit a Pull Request with your changes.
+
 
 ##Authors:
 @bogdanfinn
