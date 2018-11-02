@@ -7,6 +7,7 @@ This project is a Symfony4 based open source API for crawling different canteen 
 * Run `php bin/console server:run` in the root directory of the project
 
 Make sure you have Composer installed: https://getcomposer.org/
+
 Make sure you set up the correct file permissions for `bin/console` and the `var/` directory.
 
 ## Use
