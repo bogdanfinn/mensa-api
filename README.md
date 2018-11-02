@@ -10,7 +10,7 @@ Call:
 `universityTag` = The Tag to specify which crawler you want to use.
 
 
-###Implemented Universities:
+### Implemented Universities:
 * `NAK` (https://www.nordakademie.de)
 
 ## Working Exmaple:
@@ -23,5 +23,5 @@ Feel free to contribute a crawler implementation for your own university:
 * Submit a Pull Request with your changes.
 
 
-##Authors:
+## Authors:
 @bogdanfinn
