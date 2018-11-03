@@ -39,10 +39,10 @@ class NordakademieMensaCrawler extends AbstractMensaCrawler
         $tableContent = $this->domCrawler->filter('.speiseplan-tag-container')->each(function (Crawler $meals) {
             return $meals->filter('.gericht')->each(function (Crawler $td) {
                 $mealName = $td->filter('.speiseplan-kurzbeschreibung')->each(function (Crawler $meal) {
-                    return trim($meal->text());
+                    return trim(preg_replace('/\(.*\)/U' , '', $meal->text()));
                 });
-                $price = $td->filter('.speiseplan-preis')->each(function (Crawler $meal) {
-                    return trim($meal->text());
+                $price = $td->filter('.speiseplan-preis')->each(function (Crawler $price) {
+                    return trim(str_replace("EUR", "", $price->text()));
                 });
 
                 return ['name' => $mealName[0], 'price' => $price[0]];
