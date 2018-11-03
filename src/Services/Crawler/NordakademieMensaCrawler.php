@@ -42,7 +42,7 @@ class NordakademieMensaCrawler extends AbstractMensaCrawler
                     return trim(preg_replace('/\(.*\)/U' , '', $meal->text()));
                 });
                 $price = $td->filter('.speiseplan-preis')->each(function (Crawler $price) {
-                    return trim(str_replace("EUR", "", $price->text()));
+                    return trim(str_replace("Eur", "", $price->text()));
                 });
 
                 return ['name' => $mealName[0], 'price' => $price[0]];
