@@ -26,36 +26,35 @@ class NordakademieMensaCrawler extends AbstractMensaCrawler
     public function crawl(): array
     {
         $htmlContent = $this->loadHtmlContent();
+
         if (!$htmlContent) {
             throw new CrawlException();
         }
 
-        $this->domCrawler->addHTMLContent($htmlContent);
+        $parsedWebsiteContent = $this->crawlWebsiteContent($htmlContent);
 
-        $tableHeaders = $this->domCrawler->filter('.speiseplan-head')->filter('td')->each(function (Crawler $td) {
-            return trim($td->text());
-        });
+        $nextMondayTimestamp = strtotime("next monday") * 1000;
+        $htmlContent = $this->loadHtmlContent($nextMondayTimestamp);
 
-        $tableContent = $this->domCrawler->filter('.speiseplan-tag-container')->each(function (Crawler $meals) {
-            return $meals->filter('.gericht')->each(function (Crawler $td) {
-                $mealName = $td->filter('.speiseplan-kurzbeschreibung')->each(function (Crawler $meal) {
-                    return trim(preg_replace('/\(.*\)/U' , '', $meal->text()));
-                });
-                $price = $td->filter('.speiseplan-preis')->each(function (Crawler $price) {
-                    return trim(str_replace("Eur", "", $price->text()));
-                });
+        if (!$htmlContent) {
+            throw new CrawlException();
+        }
 
-                return ['name' => $mealName[0], 'price' => $price[0]];
-            });
-        });
+        $parsedWebsiteContentForNextWeek = $this->crawlWebsiteContent($htmlContent);
 
-        return $this->parseWebsiteContent($tableHeaders, $tableContent);
+        return array_merge($parsedWebsiteContent, $parsedWebsiteContentForNextWeek);
     }
 
-    private function loadHtmlContent(): ?string
+    private function loadHtmlContent(int $timestamp = null): ?string
     {
+        $url = self::NORDAKADEMIE_MENSA_URL;
+
+        if ($timestamp) {
+            $url = self::NORDAKADEMIE_MENSA_URL . '?date=' . $timestamp;
+        }
+
         try {
-            return file_get_contents(self::NORDAKADEMIE_MENSA_URL);
+            return file_get_contents($url);
         } catch (\Exception $e) {
             //TODO: Implement logging
             return null;
@@ -86,5 +85,30 @@ class NordakademieMensaCrawler extends AbstractMensaCrawler
         }
 
         return $mealEntries;
+    }
+
+    private function crawlWebsiteContent(string $htmlContent): array
+    {
+        $this->domCrawler->clear();
+        $this->domCrawler->addHTMLContent($htmlContent);
+
+        $tableHeaders = $this->domCrawler->filter('.speiseplan-head')->filter('td')->each(function (Crawler $td) {
+            return trim($td->text());
+        });
+
+        $tableContent = $this->domCrawler->filter('.speiseplan-tag-container')->each(function (Crawler $meals) {
+            return $meals->filter('.gericht')->each(function (Crawler $td) {
+                $mealName = $td->filter('.speiseplan-kurzbeschreibung')->each(function (Crawler $meal) {
+                    return trim(preg_replace('/\(.*\)/U', '', $meal->text()));
+                });
+                $price = $td->filter('.speiseplan-preis')->each(function (Crawler $price) {
+                    return trim(str_replace("Eur", "", $price->text()));
+                });
+
+                return ['name' => $mealName[0], 'price' => $price[0]];
+            });
+        });
+
+        return $this->parseWebsiteContent($tableHeaders, $tableContent);
     }
 }

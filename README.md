@@ -20,7 +20,7 @@ Call:
 
 
 ### Implemented Universities:
-* `NAK` (https://www.nordakademie.de)
+* `NAK` (https://www.nordakademie.de) meals for the current week and the next week
 
 ## Working Exmaple:
 `https://mensa-api.bogdanfinn.de?university=NAK`
