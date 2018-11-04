@@ -99,10 +99,10 @@ class NordakademieMensaCrawler extends AbstractMensaCrawler
         $tableContent = $this->domCrawler->filter('.speiseplan-tag-container')->each(function (Crawler $meals) {
             return $meals->filter('.gericht')->each(function (Crawler $td) {
                 $mealName = $td->filter('.speiseplan-kurzbeschreibung')->each(function (Crawler $meal) {
-                    return trim(preg_replace('/\(.*\)/U', '', $meal->text()));
+                    return $this->replaceCharacters($meal->text());
                 });
                 $price = $td->filter('.speiseplan-preis')->each(function (Crawler $price) {
-                    return trim(str_replace("Eur", "", $price->text()));
+                    return $this->replaceCharacters($price->text());
                 });
 
                 return ['name' => $mealName[0], 'price' => $price[0]];
@@ -110,5 +110,10 @@ class NordakademieMensaCrawler extends AbstractMensaCrawler
         });
 
         return $this->parseWebsiteContent($tableHeaders, $tableContent);
+    }
+
+    private function replaceCharacters(string $text): string
+    {
+        return trim(str_replace("Eur", "", str_replace('  ', ' ', str_replace("&", 'und', str_replace("- 14-tägig ", '', preg_replace('/\(.*\)/U', '', $text))))));
     }
 }
