@@ -23,6 +23,10 @@ class NordakademieMensaCrawler extends AbstractMensaCrawler
         return self::UNIVERSITY_TAG;
     }
 
+    /**
+     * @return array
+     * @throws CrawlException
+     */
     public function crawl(): array
     {
         $htmlContent = $this->loadHtmlContent();
@@ -80,6 +84,7 @@ class NordakademieMensaCrawler extends AbstractMensaCrawler
                 $mealDto = new MealDto();
                 $mealDto->setMealName($meal['name']);
                 $mealDto->setPrice($meal['price']);
+                $mealDto->setFurtherInformation($meal['furtherInformation']);
                 $dayEntry->addMeal($mealDto);
             }
         }
@@ -101,11 +106,16 @@ class NordakademieMensaCrawler extends AbstractMensaCrawler
                 $mealName = $td->filter('.speiseplan-kurzbeschreibung')->each(function (Crawler $meal) {
                     return $this->replaceCharacters($meal->text());
                 });
+
+                $furtherInformation = $td->filter('.speiseplan-kurzbeschreibung')->each(function (Crawler $meal) {
+                    return $this->extractFurtherInformation($meal->text());
+                });
+
                 $price = $td->filter('.speiseplan-preis')->each(function (Crawler $price) {
                     return $this->replaceCharacters($price->text());
                 });
 
-                return ['name' => $mealName[0], 'price' => $price[0]];
+                return ['name' => $mealName[0], 'price' => $price[0], 'furtherInformation' => $furtherInformation[0]];
             });
         });
 
@@ -114,6 +124,34 @@ class NordakademieMensaCrawler extends AbstractMensaCrawler
 
     private function replaceCharacters(string $text): string
     {
-        return trim(str_replace("Eur", "", str_replace('  ', ' ', str_replace("&", 'und', str_replace("- 14-tägig ", '', preg_replace('/\(.*\)/U', '', $text))))));
+        return trim(str_replace("Eur", "", str_replace('  ', ' ', str_replace("&", 'und', str_replace(["- 14-tägig ", '(14-tägig)'], '', preg_replace('/\(.*\)/U', '', $text))))));
+    }
+
+    private function extractFurtherInformation(string $text): array
+    {
+        $furtherInformation = [];
+
+        //Replace () with [] for better regex operations
+        $text = str_replace(")", "]", str_replace("(", "[", $text));
+        preg_match_all("/\[[^\]]*\]/", $text, $textInBraces);
+
+        if (empty($textInBraces)) {
+            return [];
+        }
+
+        foreach ($textInBraces[0] as $brace) {
+            $brace = str_replace('aW', 'a W', str_replace(["- 14-tägig ", '[14-tägig]'], '', $brace));
+            $brace = str_replace(['[', ']'], '', $brace);
+
+            $furtherInformationArray = [];
+
+            if (!empty($brace)) {
+                $furtherInformationArray = explode(',', $brace);
+            }
+
+            $furtherInformation = array_merge($furtherInformation, $furtherInformationArray);
+        }
+
+        return $furtherInformation;
     }
 }

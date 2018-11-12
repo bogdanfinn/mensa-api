@@ -2,12 +2,9 @@
 
 namespace App\Services;
 
-
-use App\Dto\DayDto;
 use App\Exceptions\CrawlException;
 use App\Services\Crawler\MensaCrawlerInterface;
 use JMS\Serializer\Serializer;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class MensaCrawlerService
 {
@@ -45,20 +42,5 @@ class MensaCrawlerService
         }
 
         return $this->serializer->serialize($websiteData, 'json');
-    }
-
-    private function normalizeWebsiteData(array $websiteData): array
-    {
-        $normalizedData = [];
-        /** @var DayDto $dto */
-        foreach ($websiteData as $dto) {
-            $normalizedMeals = $this->normalizer->normalize($dto->getMeals());
-
-            $normalizedDay = $this->normalizer->normalize($dto);
-            $normalizedDay['meals'] = $normalizedMeals;
-            $normalizedData[] = $normalizedDay;
-        }
-
-        return $normalizedData;
     }
 }

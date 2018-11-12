@@ -15,6 +15,11 @@ class MealDto
     private $price = "";
 
     /**
+     * @var array
+     */
+    private $furtherInformation = [];
+
+    /**
      * @return string
      */
     public function getMealName(): string
@@ -44,5 +49,21 @@ class MealDto
     public function setPrice(string $price)
     {
         $this->price = $price;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFurtherInformation(): array
+    {
+        return $this->furtherInformation;
+    }
+
+    /**
+     * @param array $furtherInformation
+     */
+    public function setFurtherInformation(array $furtherInformation): void
+    {
+        $this->furtherInformation = $furtherInformation;
     }
 }
