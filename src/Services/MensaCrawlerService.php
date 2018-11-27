@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\Exceptions\CrawlException;
 use App\Services\Crawler\MensaCrawlerInterface;
+use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Serializer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class MensaCrawlerService
 {
@@ -40,6 +42,7 @@ class MensaCrawlerService
             //TODO: Errorhandling and logging
             return null;
         }
+
 
         return $this->serializer->serialize($websiteData, 'json');
     }

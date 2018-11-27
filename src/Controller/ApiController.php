@@ -4,8 +4,10 @@ namespace App\Controller;
 
 
 use App\Services\MensaCrawlerService;
+use App\Utils\StringUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ApiController
@@ -14,9 +16,9 @@ class ApiController
      * @Route(path="/")
      * @param Request $request
      * @param MensaCrawlerService $mensaCrawlerService
-     * @return JsonResponse
+     * @return Response
      */
-    public function api(Request $request, MensaCrawlerService $mensaCrawlerService): JsonResponse
+    public function api(Request $request, MensaCrawlerService $mensaCrawlerService): Response
     {
         $university = $request->get('university', null);
 
@@ -30,7 +32,10 @@ class ApiController
             return new JsonResponse([], 404);
         }
 
-        return new JsonResponse(json_decode($meals), 200);
+        $response = new Response(StringUtils::encodeUtf8($meals), 200, ['Content-Type' => "application/json"]);
+        $response->setCharset('UTF-8');
+
+        return $response;
     }
 
 }

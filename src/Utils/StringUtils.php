@@ -18,4 +18,9 @@ class StringUtils
 
         return $dayStringParts[0];
     }
+
+    public static function encodeUtf8(string $decodedString)
+    {
+        return json_encode(json_decode($decodedString), JSON_UNESCAPED_UNICODE);
+    }
 }
