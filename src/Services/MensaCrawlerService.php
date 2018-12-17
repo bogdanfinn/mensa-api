@@ -30,14 +30,16 @@ class MensaCrawlerService
         $this->crawler[strtolower($crawler->getUniversityTag())] = $crawler;
     }
 
-    public function crawlForUniversity($university): ?string
+    public function crawlForUniversity(String $university, ?String $timestamp = null): ?string
     {
         if (!array_key_exists(strtolower($university), $this->crawler)) {
             return null;
         }
 
+        $crawler = $this->crawler[strtolower($university)];
+
         try {
-            $websiteData = $this->crawler[strtolower($university)]->crawl();
+            $websiteData = $crawler->crawl($timestamp);
         } catch (CrawlException $e) {
             //TODO: Errorhandling and logging
             return null;

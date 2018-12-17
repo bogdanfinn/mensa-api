@@ -21,12 +21,13 @@ class ApiController
     public function api(Request $request, MensaCrawlerService $mensaCrawlerService): Response
     {
         $university = $request->get('university', null);
+        $timestamp = $request->get('timestamp', null);
 
         if (!$university) {
             return new JsonResponse(['error' => 'you should specify a university tag'], 400);
         }
 
-        $meals = $mensaCrawlerService->crawlForUniversity($university);
+        $meals = $mensaCrawlerService->crawlForUniversity($university, $timestamp);
 
         if (!$meals) {
             return new JsonResponse([], 404);

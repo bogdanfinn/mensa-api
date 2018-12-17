@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Services\Crawler;
+namespace App\Services\Crawler\NAK;
 
 use App\Dto\DayDto;
 use App\Dto\MealDto;
 use App\Exceptions\CrawlException;
+use App\Services\Crawler\AbstractMensaCrawler;
 use App\Utils\StringUtils;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -24,12 +25,13 @@ class NordakademieMensaCrawler extends AbstractMensaCrawler
     }
 
     /**
+     * @param String|null $timestamp
      * @return array
      * @throws CrawlException
      */
-    public function crawl(): array
+    public function crawl(?String $timestamp): array
     {
-        $htmlContent = $this->loadHtmlContent();
+        $htmlContent = $this->loadHtmlContent($timestamp);
 
         if (!$htmlContent) {
             throw new CrawlException();
@@ -37,14 +39,18 @@ class NordakademieMensaCrawler extends AbstractMensaCrawler
 
         $parsedWebsiteContent = $this->crawlWebsiteContent($htmlContent);
 
-        $nextMondayTimestamp = strtotime("next monday") * 1000;
-        $htmlContent = $this->loadHtmlContent($nextMondayTimestamp);
+        if ($timestamp === null) {
+            $nextMondayTimestamp = strtotime("next monday") * 1000;
+            $htmlContent = $this->loadHtmlContent($nextMondayTimestamp);
 
-        if (!$htmlContent) {
-            throw new CrawlException();
+            if (!$htmlContent) {
+                throw new CrawlException();
+            }
+
+            $parsedWebsiteContentForNextWeek = $this->crawlWebsiteContent($htmlContent);
+        } else {
+            $parsedWebsiteContentForNextWeek = [];
         }
-
-        $parsedWebsiteContentForNextWeek = $this->crawlWebsiteContent($htmlContent);
 
         return array_merge($parsedWebsiteContent, $parsedWebsiteContentForNextWeek);
     }

@@ -19,5 +19,5 @@ services:
         arguments:
             - '@jms_serializer.serializer'
 
-    App\Services\Crawler\NordakademieMensaCrawler:
+    App\Services\Crawler\NAK\NordakademieMensaCrawler:
         tags: ['mensa_crawler']
